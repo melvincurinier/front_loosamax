@@ -39,9 +39,27 @@ document.addEventListener('DOMContentLoaded', async function() {
             li.appendChild(link);
             matchesList.appendChild(li);
         });
+
+        // Récupérer les paris de l'utilisateur
+        const betsResponse = await fetch(`http://localhost:9090/userBets?userId=${userId}`);
+
+        if (!betsResponse.ok) {
+            throw new Error('Failed to fetch user bets');
+        }
+
+        const betsData = await betsResponse.json();
+        console.log(betsData)
+
+        const betsList = document.getElementById('bets-list');
+        betsData.forEach(bet => {
+            const li = document.createElement('li');
+            li.textContent = `Match: ${bet.game.teams[0].teamname} vs ${bet.game.teams[1].teamname}, Amount: ${bet.sum}`;
+            betsList.appendChild(li);
+        });
+
     } catch (error) {
         console.error(error);
-        alert('Failed to load user data and matches.');
+        alert('Failed to load user data, matches and bets.');
     }
 
     // Ajouter des fonds
