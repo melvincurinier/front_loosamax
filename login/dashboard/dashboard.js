@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         try {
             const response = await fetch(`http://localhost:9090/addFunds?userId=${userId}&amount=${amount}`, {
-                method: 'PUT'
+                method: 'POST'
             });
 
             if (!response.ok) {
