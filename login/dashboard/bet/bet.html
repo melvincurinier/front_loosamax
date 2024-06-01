@@ -8,15 +8,19 @@
 </head>
 <body>
     <div class="container">
-        <h1>Place Bet</h1>
-        <h2 id="match-details"></h2>
-        <h2>Available Options</h2>
-        <select id="bet-option">
-            <!-- Options de pari seront ajoutées dynamiquement ici -->
-        </select>
-        <label for="bet-amount">Enter Bet Amount:</label>
-        <input type="number" id="bet-amount" required>
-        <button id="place-bet">Place Bet</button>
+        <header>
+            <h1>Place Bet</h1>
+            <p id="match-details"></p>
+            <p id="bet-odds"></p>
+            <form id="place-bet-form">
+                <label for="bet-amount">Bet Amount:</label>
+                <input type="number" id="bet-amount" name="bet-amount" min="1" step="1" required>
+                <button type="submit">Place Bet</button>
+            </form>
+        </header>
+        <footer>
+            <p>&copy; 2024 Loosamax</p>
+        </footer>
     </div>
     <script src="bet.js"></script>
 </body>

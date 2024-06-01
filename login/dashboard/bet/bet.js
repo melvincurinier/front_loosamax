@@ -1,11 +1,9 @@
 document.addEventListener('DOMContentLoaded', async function() {
-    // Récupérer les paramètres de l'URL (userId, matchId)
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get('userId');
     const matchId = urlParams.get('matchId');
 
-    if (!userId || (userId == 0) || !matchId) {
-        // Rediriger l'utilisateur vers la page de connexion s'il manque des paramètres
+    if (!userId || (userId ==0) || !matchId) {
         window.location.href = '../../index.html';
         return;
     }
@@ -21,61 +19,59 @@ document.addEventListener('DOMContentLoaded', async function() {
         const matchData = await matchResponse.json();
         const team1Name = matchData.teams[0].teamname;
         const team2Name = matchData.teams[1].teamname;
-        const matchDetails = document.getElementById('match-details');
-        matchDetails.textContent = `Match: ${team1Name} vs ${team2Name}`;
 
-        // Récupérer les options de pari pour le match sélectionné
-        const betOptionsResponse = await fetch(`http://localhost:9090/matches/${matchId}/bet-options`);
+        document.getElementById('match-details').textContent = `${team1Name} vs ${team2Name}`;
 
-        if (!betOptionsResponse.ok) {
-            throw new Error('Failed to fetch bet options');
-        }
+        // Récupérer les cotes du match
+        const team1Odds = matchData.sidevic1;
+        const team2Odds = matchData.sidevic2;
+        const tieOdds = matchData.tie;
 
-        const betOptionsData = await betOptionsResponse.json();
-        const betOptionsSelect = document.getElementById('bet-option');
-        
-        betOptionsData.forEach(option => {
-            const optionElement = document.createElement('option');
-            optionElement.value = option.id;
-            optionElement.textContent = `${option.name} - Odds: ${option.odds}`;
-            betOptionsSelect.appendChild(optionElement);
-        });
+        document.getElementById('bet-odds').textContent = `Odds: ${team1Odds} for ${team1Name}, ${team2Odds} for ${team2Name}, ${tieOdds} for Tie`;
 
-        // Ajouter un écouteur d'événements au bouton de placement de pari
-        const placeBetButton = document.getElementById('place-bet');
-        placeBetButton.addEventListener('click', async function() {
-            const selectedOption = betOptionsSelect.value;
-            const betAmount = document.getElementById('bet-amount').value;
+        // Gérer la soumission du formulaire pour placer un pari
+        document.getElementById('place-bet-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
 
-            if (!selectedOption || !betAmount) {
-                alert('Please select a bet option and enter a bet amount.');
-                return;
-            }
+            const betAmount = parseInt(document.getElementById('bet-amount').value);
 
-            // Envoyer le pari au backend
-            const betData = {
-                userId: userId,
-                matchId: matchId,
-                betOptionId: selectedOption,
-                amount: betAmount
+            const data = {
+                "id": {
+                    "idUser": userId,
+                    "idMatch": matchId
+                },
+                "user": {
+                    "id": userId
+                },
+                "match": {
+                    "idMatch": matchId
+                },
+                "sum": betAmount
             };
 
-            const response = await fetch('http://localhost:9090/place-bet', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(betData)
-            });
+            try {
+                // Envoyer la demande de pari
+                const response = await fetch(`http://localhost:9090/bet`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
 
-            if (!response.ok) {
-                throw new Error('Failed to place bet');
+                if (!response.ok) {
+                    throw new Error('Failed to place bet');
+                }
+
+                alert('Bet placed successfully.');
+                window.location.href = '../dashboard.html?userId=' + userId;
+            } catch (error) {
+                console.error(error);
+                alert('Failed to place bet. Please try again later.');
             }
-
-            alert('Bet placed successfully!');
         });
     } catch (error) {
         console.error(error);
-        alert('Failed to load match details and bet options.');
+        alert('Failed to load match details and odds.');
     }
 });

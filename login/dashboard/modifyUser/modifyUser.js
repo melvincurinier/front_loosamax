@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const userId = urlParams.get('userId');
 
     if (!userId || (userId == 0)) {
-        window.location.href = '../index.html';
+        window.location.href = '../../index.html';
         return;
     }
 
