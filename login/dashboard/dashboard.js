@@ -1,0 +1,80 @@
+document.addEventListener('DOMContentLoaded', async function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('userId');
+
+    if (!userId || (userId == 0)) {
+        window.location.href = '../index.html';
+        return;
+    }
+
+    try {
+        // Récupérer le solde de l'utilisateur
+        const balanceResponse = await fetch(`http://localhost:9090/user?id=${userId}`);
+
+        if (!balanceResponse.ok) {
+            throw new Error('Failed to fetch user balance');
+        }
+
+        const balanceData = await balanceResponse.json();
+        document.getElementById('user-balance').textContent = `Balance: $${balanceData.solde.toFixed(2)}`;
+
+        // Récupérer la liste des matchs
+        const matchesResponse = await fetch('http://localhost:9090/allGames');
+
+        if (!matchesResponse.ok) {
+            throw new Error('Failed to fetch matches');
+        }
+
+        const matchesData = await matchesResponse.json();
+
+        const matchesList = document.getElementById('matches-list');
+        matchesData.forEach(match => {
+            const team1Name = match.teams[0].teamname;
+            const team2Name = match.teams[1].teamname;
+
+            const li = document.createElement('li');
+            const link = document.createElement('a');
+            link.href = `../bet/bet.html?userId=${userId}&matchId=${match.idMatch}`;
+            link.textContent = `${team1Name} vs ${team2Name}`;
+            li.appendChild(link);
+            matchesList.appendChild(li);
+        });
+    } catch (error) {
+        console.error(error);
+        alert('Failed to load user data and matches.');
+    }
+
+    // Ajouter des fonds
+    document.getElementById('add-funds-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const amount = parseInt(document.getElementById('amount').value);
+
+        try {
+            const response = await fetch(`http://localhost:9090/addFunds?userId=${userId}&amount=${amount}`, {
+                method: 'PUT'
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to add funds');
+            }
+
+            const balanceResponse = await fetch(`http://localhost:9090/user?id=${userId}`);
+
+            if (!balanceResponse.ok) {
+                throw new Error('Failed to fetch user balance');
+            }
+
+            const balanceData = await balanceResponse.json();
+            document.getElementById('user-balance').textContent = `Balance: $${balanceData.solde.toFixed(2)}`;
+            alert('Funds added successfully.');
+        } catch (error) {
+            console.error(error);
+            alert('Failed to add funds. Please try again later.');
+        }
+    });
+
+    document.getElementById('modifyUserButton').addEventListener('click', function() {
+        window.location.href = `./modifyUser/modifyUser.html?userId=${userId}`;
+    });
+});
