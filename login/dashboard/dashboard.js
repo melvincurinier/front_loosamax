@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             const li = document.createElement('li');
             const link = document.createElement('a');
-            link.href = `../bet/bet.html?userId=${userId}&matchId=${match.idMatch}`;
+            link.href = `./bet/bet.html?userId=${userId}&matchId=${match.idMatch}`;
             link.textContent = `${team1Name} vs ${team2Name}`;
             li.appendChild(link);
             matchesList.appendChild(li);
