@@ -58,15 +58,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ username: newUsername, password: newPassword })
+                body: JSON.stringify({ name: newUsername, password: newPassword })
             });
     
             if (!response.ok) {
                 throw new Error('Account creation failed');
             }
-    
-            const data = await response.json();
-            console.log(data);
             
             // Afficher un message de succès ou rediriger vers la page de connexion
             alert('Account created successfully. Please login with your new credentials.');
